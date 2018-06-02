@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const creds = require('./creds');
+const fs = require('fs');
 
 async function woodpecker() {
   const BIRDFEED_SIGNIN = 'https://birdfeed.dirtybirdrecords.com/users/sign_in';
@@ -35,7 +36,7 @@ async function woodpecker() {
   const downloadFile = async () => {
     await page._client.send('Page.setDownloadBehavior', {
       behavior: 'allow',
-      downloadPath: __dirname + '/releases'
+      downloadPath: `${__dirname}/releases`
     });
     await page.click(FLAC_DOWNLOAD_BUTTON_SELECTOR);
   }
@@ -66,7 +67,7 @@ async function woodpecker() {
   };
 
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
   });
   const page = await browser.newPage();
 
@@ -87,7 +88,24 @@ async function woodpecker() {
       console.log(e);
     }
   }
-  console.log('**** FINISHED DOWNLOAD REQUEST****');
+  const areDownloadsFinshed = (cb) => {
+    const int = setInterval(() => {
+      console.log('**** DOWNLOADING FILES ****');
+      let numFilesLeft = fs.readdirSync(`${__dirname}/releases`)
+        .filter(fileName => fileName.includes('crdownload'))
+        .length;
+      console.log(`Completed: ${flacLinks.length - numFilesLeft}/${flacLinks.length}`)
+      if (numFilesLeft === 0) {
+        clearInterval(int);
+        cb();
+      }
+    }, 5000);
+  }
+
+  areDownloadsFinshed(() => {
+    browser.close();
+    process.exit();
+  })
 };
 
 woodpecker();
