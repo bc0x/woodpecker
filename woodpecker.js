@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const creds = require('./creds');
 const fs = require('fs');
 
-async function woodpecker() {
+const woodpecker = async () => {
   const BIRDFEED_SIGNIN = 'https://birdfeed.dirtybirdrecords.com/users/sign_in';
   const BIRDFEED_HOME = 'https://birdfeed.dirtybirdrecords.com/feed';
   const SIGNIN_SELECTOR = '#navbar > ul > li:nth-child(4) > a';
